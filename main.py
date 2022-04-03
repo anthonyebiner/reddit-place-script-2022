@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import datetime
 import os
 import os.path
 import math
@@ -56,7 +56,7 @@ def closest_color(target_rgb, rgb_colors_array_in):
 
 # method to draw a pixel at an x, y coordinate in r/place with a specific color
 def set_pixel_and_check_ratelimit(
-    access_token_in, x, y, color_index_in=18, canvas_index=1
+    access_token_in, x, y, color_index_in=18, canvas_index=0
 ):
     logging.info(
         f"Attempting to place {color_id_to_name(color_index_in)} pixel at {x}, {y}"
@@ -170,7 +170,7 @@ def get_board(access_token_in):
                             "channel": {
                                 "teamOwner": "AFD2022",
                                 "category": "CANVAS",
-                                "tag": "1",
+                                "tag": "0",
                             }
                         }
                     },
@@ -476,6 +476,34 @@ def task(credentials_index):
             break
 
 
+def update_task():
+    while True:
+        clock_cord_x = 0
+        clock_cord_y = 0
+
+        # set base pix
+        for a in range(5):
+            for b in range(5):
+                pix[clock_cord_x + a, clock_cord_y + b] = (212, 215, 217)
+
+        rotate = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
+
+        # set center pix
+        pix[clock_cord_x + 2, clock_cord_y + 2] = (0, 163, 104)
+
+        # set hour pix
+        hour = datetime.datetime.now().hour
+        offset = rotate[int((hour + 1) // 3) % 8]
+        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 117, 111)
+
+        # set minute pix
+        minute = datetime.datetime.now().minute
+        offset = rotate[int((minute + 4)//7.5) % 8]
+        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 117, 111)
+        pix[clock_cord_x + 2 + offset[0] * 2, clock_cord_y + 2 + offset[1] * 2] = (0, 117, 111)
+        time.sleep(60)
+
+
 def get_last_modified_commit() -> str:
     return subprocess.run(["git", "log", "-1", "--format=%H", "image.png"], capture_output=True, text=True).stdout
 
@@ -580,6 +608,11 @@ ENV_C_START='["0"]\'"""
         delay_between_launches_seconds = int(os.getenv("ENV_THREAD_DELAY"))
     else:
         delay_between_launches_seconds = 3
+
+    # launch thread to update the clock
+    logging.info("starting clock thread")
+    clock_thread = threading.Thread(target=update_task)
+    clock_thread.start()
 
     scheduler = sched.scheduler(time.time, time.sleep)
     scheduler_delay = 1800
