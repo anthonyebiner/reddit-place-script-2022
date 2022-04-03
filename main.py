@@ -495,13 +495,14 @@ def update_task():
         # set minute pix
         minute = datetime.datetime.now().minute
         offset = rotate[int((minute + 4)//7.5) % 8]
-        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 163, 104)
-        pix[clock_cord_x + 2 + offset[0] * 2, clock_cord_y + 2 + offset[1] * 2] = (0, 163, 104)
+        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 - offset[1]] = (0, 163, 104)
+        pix[clock_cord_x + 2 + offset[0] * 2, clock_cord_y + 2 - offset[1] * 2] = (0, 163, 104)
 
         # set hour pix
         hour = datetime.datetime.now().hour
         offset = rotate[int((hour + .5) // 1.5) % 8]
-        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 117, 111)
+        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 - offset[1]] = (0, 117, 111)
+        im.save("current_clock.png")
         time.sleep(60)
 
 
@@ -616,17 +617,17 @@ ENV_C_START='["0"]\'"""
     clock_thread = threading.Thread(target=update_task)
     clock_thread.start()
 
-    # scheduler = sched.scheduler(time.time, time.sleep)
-    # scheduler_delay = 1800
-    # scheduler.enter(scheduler_delay, 1, pull_image, (scheduler,))
-    # thread0 = threading.Thread(target=scheduler.run)
-    # thread0.start()
-    #
-    # # launch a thread for each account specified in .env
-    # for i in range(num_credentials):
-    #     # run the image drawing task
-    #     access_tokens.append(None)
-    #     access_token_expires_at_timestamp.append(math.floor(time.time()))
-    #     thread1 = threading.Thread(target=task, args=[i])
-    #     thread1.start()
-    #     time.sleep(delay_between_launches_seconds)
+    scheduler = sched.scheduler(time.time, time.sleep)
+    scheduler_delay = 1800
+    scheduler.enter(scheduler_delay, 1, pull_image, (scheduler,))
+    thread0 = threading.Thread(target=scheduler.run)
+    thread0.start()
+
+    # launch a thread for each account specified in .env
+    for i in range(num_credentials):
+        # run the image drawing task
+        access_tokens.append(None)
+        access_token_expires_at_timestamp.append(math.floor(time.time()))
+        thread1 = threading.Thread(target=task, args=[i])
+        thread1.start()
+        time.sleep(delay_between_launches_seconds)
