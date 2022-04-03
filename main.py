@@ -501,6 +501,8 @@ def update_task():
         hour = datetime.datetime.now().hour
         offset = rotate[int((hour + 1) // 3) % 8]
         pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 117, 111)
+        img = Image.fromarray(pix)
+        print(img)
         time.sleep(60)
 
 
