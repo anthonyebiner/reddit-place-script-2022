@@ -491,16 +491,16 @@ def update_task():
         # set center pix
         pix[clock_cord_x + 2, clock_cord_y + 2] = (0, 163, 104)
 
+        # set minute pix
+        minute = datetime.datetime.now().minute
+        offset = rotate[int((minute + 4)//7.5) % 8]
+        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 163, 104)
+        pix[clock_cord_x + 2 + offset[0] * 2, clock_cord_y + 2 + offset[1] * 2] = (0, 163, 104)
+
         # set hour pix
         hour = datetime.datetime.now().hour
         offset = rotate[int((hour + 1) // 3) % 8]
         pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 117, 111)
-
-        # set minute pix
-        minute = datetime.datetime.now().minute
-        offset = rotate[int((minute + 4)//7.5) % 8]
-        pix[clock_cord_x + 2 + offset[0], clock_cord_y + 2 + offset[1]] = (0, 117, 111)
-        pix[clock_cord_x + 2 + offset[0] * 2, clock_cord_y + 2 + offset[1] * 2] = (0, 117, 111)
         time.sleep(60)
 
 
